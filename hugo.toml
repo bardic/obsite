@@ -27,4 +27,6 @@ author = "TJ Gillis"
 
 [params]
   subtitle = "a tj gillis braindump"
+  customCSS = ""
+  adobeFontsKitId = "iyj0xgy"
   colorTheme = "dark"
