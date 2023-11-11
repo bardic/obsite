@@ -1,7 +1,6 @@
 +++
 title = 'Ventoy'
 date = 2023-11-11T11:14:16-04:00
-draft = true
 tags = [
     "tools",
 ]
