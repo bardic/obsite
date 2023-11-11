@@ -25,6 +25,15 @@ author = "TJ Gillis"
 [taxonomies]
   tag = "tags"
 
+
+
+[outputs]
+  home = ['html', 'rss']
+
+[services]
+  [services.rss]
+    limit = 20
+
 [params]
   subtitle = "a tj gillis braindump"
   colorTheme = "dark"
