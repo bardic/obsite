@@ -27,12 +27,7 @@ author = "TJ Gillis"
 
 [params]
   subtitle = "a tj gillis braindump"
-  customCSS = '@font-face {
-  font-family: "fira-sans", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}'
-  adobeFontsKitId = "iyj0xgy.css"
   colorTheme = "dark"
-  summary = true
-  toc = true
+  [params.enabled]
+    summary = true
+    toc = true
