@@ -2,6 +2,10 @@ baseURL = 'https://opebracket.ca/'
 languageCode = 'en-us'
 title = 'Openbracket'
 theme = 'simplog'
+paginate = 3
+DefaultContentLanguage = "en"
+enableInlineShortcodes = true
+ignoreErrors = ["error-remote-getjson"]
 
 [menu]
 
@@ -16,6 +20,9 @@ theme = 'simplog'
     name = "Tags"
     url = "/tags/"
     weight = 20
+
+[taxonomies]
+  tag = "tags"
 
 [params]
   subtitle = "a tj gillis braindump"

@@ -5,6 +5,8 @@ date = 2023-11-11T11:45:33-04:00
 
 In an attempt to blog more I'm going to use hugo and have it setup to use github pages that get updated when the repo is updated. Pretty straight forward stuff. So let's just quickly documention setup so we don't forget... again
 
+<!--more-->
+
 ### Local setup
 
 - choco install hugo-extended
