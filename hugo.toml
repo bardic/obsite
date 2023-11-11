@@ -1,0 +1,22 @@
+baseURL = 'https://opebracket.ca/'
+languageCode = 'en-us'
+title = 'Openbracket'
+theme = 'simplog'
+
+[menu]
+
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 10
+
+  [[menu.main]]
+    identifier = "tags"
+    name = "Tags"
+    url = "/tags/"
+    weight = 20
+
+[params]
+  subtitle = "a tj gillis braindump"
+  colorTheme = "dark"
