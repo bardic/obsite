@@ -6,6 +6,7 @@ paginate = 3
 DefaultContentLanguage = "en"
 enableInlineShortcodes = true
 ignoreErrors = ["error-remote-getjson"]
+author = "TJ Gillis"
 
 [menu]
 
