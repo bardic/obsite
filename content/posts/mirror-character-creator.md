@@ -57,209 +57,44 @@ Now that we understand that Mirror is looking for let's at what we need to accom
 
 With that all thunk through, the actual implementation is pretty straightforward
 
-- Create Game Scene
-  - Nothing special needs to happen in this scene
-- Create Lobby Scene
-  - The lobby scene is also our Online, Character Builder and Room scene.
+### Create Game Scene
 
-_LobbyController.cs_
+Nothing special needs to happen in this scene
 
-```csharp
-using System.Collections.Generic;
-using Mirror;
-using TMPro;
-using UnityEngine;
+### Create Lobby Scene
 
-namespace asymMole.App
-{
-    public enum State
-    {
-        CharacterLockIn,
-        WeaponLockIn,
-        Ready
-    }
+The lobby scene is also our Online, Character Builder and Room scene.
 
-    public class LobbyController : MonoBehaviour
-    {
-        public State state;
-        private int modelIndex;
-        private int weaponIndex;
-        private int selectionIndex;
-        private List<string> selectedModelList;
-        [SerializeField]
-        private TMP_Text buttonLabel;
-        [SerializeField]
-        private CharacerModelController characterModelController;
-
-        void Start()
-        {
-            state = State.CharacterLockIn;
-            selectedModelList = characterModelController.CharacterModels;
-            UpdateModelForIndex(0);
-        }
-
-        public void OnPrev()
-        {
-            selectionIndex--;
-            if (selectionIndex < 0)
-            {
-                selectionIndex = selectedModelList.Count - 1;
-            }
-
-            UpdateModelForIndex(selectionIndex);
-        }
-
-        public void OnNext()
-        {
-            selectionIndex++;
-            if (selectionIndex > selectedModelList.Count - 1)
-            {
-                selectionIndex = 0;
-            }
-
-            UpdateModelForIndex(selectionIndex);
-        }
-
-        public void LockIn()
-        {
-            switch (state)
-            {
-                case State.CharacterLockIn:
-                    selectionIndex = 0;
-                    selectedModelList = characterModelController.WeaponModels;
-                    state = State.WeaponLockIn;
-                    break;
-                case State.WeaponLockIn:
-                    selectionIndex = 0;
-                    if (NetworkClient.localPlayer == null)
-                    {
-                        NetworkClient.AddPlayer();
-
-                    }
-                    NetworkRoomPlayerExt roomPlayer = NetworkClient.localPlayer.GetComponent<NetworkRoomPlayerExt>();
-                    // Here is where we update the sever with our selected values
-                    roomPlayer.CmdUpdateCharacterModelIndex(modelIndex);
-                    roomPlayer.CmdUpdateWeaponModelIndex(weaponIndex);
-                    roomPlayer.CmdChangeReadyState(true);
-                    break;
-                case State.Ready:
-                    state = State.CharacterLockIn;
-                    break;
-                default:
-                    Debug.Log("Err");
-                    break;
-            }
-
-            UpdateUIForState();
-        }
-
-        private void UpdateUIForState()
-        {
-            switch (state)
-            {
-                case State.CharacterLockIn:
-                    buttonLabel.text = "Lock in Character";
-                    break;
-                case State.WeaponLockIn:
-                    buttonLabel.text = "Lock in Weapon";
-                    break;
-                case State.Ready:
-                    buttonLabel.text = "Readied";
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void UpdateModelForIndex(int selectedIndex)
-        {
-            if (state == State.CharacterLockIn)
-            {
-                modelIndex = selectedIndex;
-            }
-
-            if (state == State.WeaponLockIn)
-            {
-                weaponIndex = selectedIndex;
-            }
-
-            characterModelController.LoadCharacterModel(modelIndex);
-            characterModelController.LoadWeaponModel(weaponIndex);
-        }
-    }
-}
-```
-
--
-  - Create Player Controller and attach to your Player Prefab
-_PlayerController.cs_
+#### LobbyController.cs
 
 ```csharp
-using Cinemachine;
-using DG.Tweening;
-using Mirror;
-using StarterAssets;
-using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
-
-public class PlayerController : NetworkBehaviour
-{
-    [SerializeField]
-    private ThirdPersonController thirdPersonController;
-    private Transform hammerHead;
-    [SerializeField]
-    private CharacerModelController characerModelController;
-
-    async void Start()
-    {
-        CinemachineVirtualCamera whackeeCam = GameObject.FindGameObjectsWithTag("whackeeCam")[0].GetComponent<CinemachineVirtualCamera>();
-        CinemachineVirtualCamera whackerCam = GameObject.FindGameObjectsWithTag("whackerCam")[0].GetComponent<CinemachineVirtualCamera>();
-        InputSystemUIInputModule inputModule = GameObject.FindGameObjectsWithTag("inputsystem")[0].GetComponent<InputSystemUIInputModule>();
-
-        CinemachineVirtualCamera selectedCam;
-
-        PlayerSyncVO roomPlayer = GetComponent<PlayerSyncVO>();
-        characerModelController.LoadCharacterModel(roomPlayer.CharacterModelIndex);
-        hammerHead = await characerModelController.LoadWeaponModel(roomPlayer.WeaponModelIndex);
-
-        if (!roomPlayer.IsWhacker)
-        {
-
-            whackerCam.Priority = 10;
-            whackeeCam.Priority = 1;
-            selectedCam = whackerCam;
-        }
-        else
-        {
-            transform.localScale = new Vector3(3, 3, 3);
-            whackerCam.Priority = 1;
-            whackeeCam.Priority = 10;
-            selectedCam = whackeeCam;
-        }
-
-        if (roomPlayer.isLocalPlayer)
-        {
-            selectedCam.LookAt = transform;
-        }
-
-        GetComponent<PlayerInput>().uiInputModule = inputModule;
-        GetComponent<PlayerInput>().camera = selectedCam.GetComponent<Camera>();
-    }
-
-    void OnSelect()
-    {
-        Sequence mySequence = DOTween.Sequence();
-        mySequence.Append(hammerHead.transform.DOLocalRotate(new Vector3(99, 0, 0), 0.25f))
-          .PrependInterval(0.2f)
-          .Append(hammerHead.transform.DOLocalRotate(new Vector3(0, 0, 0), 0.25f));
-    }
-}
-
+// We fire off this trio of Commands (Commands are messages from client to server) 
+// when we click our ready button
+roomPlayer.CmdUpdateCharacterModelIndex(modelIndex);
+roomPlayer.CmdUpdateWeaponModelIndex(weaponIndex);
+roomPlayer.CmdChangeReadyState(true);
+                
 ```
 
--
-  - Create Player Sync VO and also attach to Player Prefab
+### Create Player Controller
+
+Aattach to your Player Prefab.
+
+#### PlayerController.cs
+
+```csharp
+// Within Start function we get a reference to our PlayerSyncVO which at this point has
+// been filled with the data from RoomPlayer
+PlayerSyncVO roomPlayer = GetComponent<PlayerSyncVO>();
+characerModelController.LoadCharacterModel(roomPlayer.CharacterModelIndex);
+hammerHead = await characerModelController.LoadWeaponModel(roomPlayer.WeaponModelIndex);
+```
+
+### Create Player Sync VO
+
+Attach to Player Prefab.
+
+#### PlayerSyncVO
 
 ```csharp
 using Mirror;
@@ -275,128 +110,15 @@ public class PlayerSyncVO : NetworkBehaviour
 }
 ```
 
--
-  - Create Characrter Model Controller. This is what does the heavy lifting of loading the synced indexes. You'll see below I am using addressables to store my prefabs just convert the indexs to paths names to load the proper prefab.
+### Create Characrter Model Controller
 
-```csharp
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
+This is what does the heavy lifting of conveting the synced indexes to prefabs. It's outside of the scope of this post as it don't include any networking code but personally I just use addressables to store my prefabs and in this class convert the indexes to paths names to load the proper prefab.
 
-public struct ActiveObject
-{
-    public ActiveObject(string name, GameObject model)
-    {
-        Name = name;
-        Model = model;
-    }
-    public GameObject Model;
-    public string Name;
-}
+### Create MainMenu Scene
 
-public class CharacerModelController : MonoBehaviour
-{
-    [SerializeField]
-    private Transform pivot;
-    public List<string> CharacterModels
-    {
-        get
-        {
-            return new List<string>()
-            {
-                "Characters/crab.prefab",
-                "Characters/hen.prefab",
-                "Characters/penguin.prefab",
-                "Characters/pig.prefab",
-                "Characters/shark.prefab",
-                "Characters/t-rex.prefab"
-            };
-        }
-    }
+Create NetworkRoomManagerExt, add to an object in scene and accosicate all the above elements to it.
 
-    public List<string> WeaponModels
-    {
-        get
-        {
-            return new List<string>()
-            {
-                "Weapons/axe.prefab",
-                "Weapons/hammer.prefab",
-                "Weapons/pickaxe.prefab",
-                "Weapons/shovel.prefab",
-                "Weapons/sledgehammer.prefab",
-            };
-        }
-    }
-
-    private ActiveObject currentCharacter;
-    private ActiveObject currentWeapon;
-
-    public async void LoadCharacterModel(int index)
-    {
-
-        if (currentCharacter.Model != null)
-        {
-            currentCharacter.Model.transform.SetParent(null);
-            Destroy(currentCharacter.Model);
-            currentCharacter.Model = null;
-        }
-
-
-        GameObject userModelPrefab = await LoadAsset(CharacterModels[index]);
-        GameObject model = Instantiate(userModelPrefab, transform);
-        currentCharacter = new ActiveObject(CharacterModels[index], model);
-        Transform handPosition = FindModelsHand(model);
-        PositionWeaponPiviotToHand(pivot, handPosition);
-    }
-
-    public async Task<Transform> LoadWeaponModel(int index)
-    {
-        if (currentWeapon.Model != null)
-        {
-            currentWeapon.Model.transform.SetParent(null);
-            Destroy(currentWeapon.Model);
-            currentWeapon.Model = null;
-        }
-
-        GameObject userWeaponPrefab = await LoadAsset(WeaponModels[index]);
-        GameObject model = Instantiate(userWeaponPrefab, pivot);
-        currentWeapon = new ActiveObject(WeaponModels[index], model);
-        return model.GetComponentInChildren<Transform>();
-    }
-
-    private void PositionWeaponPiviotToHand(Transform pivot, Transform handPosition)
-    {
-        pivot.transform.position = handPosition.position;
-    }
-
-    private Transform FindModelsHand(GameObject userModel)
-    {
-        return Utils.FindTagInChildren(gameObject, "character_hand");
-    }
-
-    private async Task<GameObject> LoadAsset(string model)
-    {
-        AsyncOperationHandle<GameObject> loadHandle = Addressables.LoadAssetAsync<GameObject>(model);
-        await loadHandle.Task;
-
-        if (loadHandle.Status != AsyncOperationStatus.Succeeded)
-        {
-            Debug.Log("Error loading model");
-            return null;
-        }
-
-        return loadHandle.Task.Result;
-    }
-}
-```
-
-- Create MainMenu Scene
-  - Create NetworkRoomManagerExt, add to an object in scene and accosicate all the above elements to it.
-
-_NetworkRoomManagerExt.cs_
+#### NetworkRoomManagerExt.cs
 
 ```csharp
 using UnityEngine;
@@ -420,34 +142,22 @@ public class NetworkRoomManagerExt : NetworkRoomManager
 }
 ```
 
--
-  - Create UI (two input field and a button) and connect to MainMenuController
+### Create UI
+
+This is just two input field and a button and is connected to MainMenuController.
   
-_MainMenuController.cs_
+#### MainMenuController.cs
 
 ```csharp
-using Mirror;
-using TMPro;
-using UnityEngine;
-
-namespace asymMole.App
+public void CreateHost()
 {
-    public class MainMenuController : MonoBehaviour
-    {
-        [SerializeField]
-        private TMP_InputField hostURL;
-    
-        public void CreateHost()
-        {
-            NetworkManager.singleton.StartHost();
-        }
+    NetworkManager.singleton.StartHost();
+}
 
-        public void JoinHost()
-        {
-            NetworkManager.singleton.networkAddress = hostURL.text;
-            NetworkManager.singleton.StartClient();
-        }
-    }
+public void JoinHost()
+{
+    NetworkManager.singleton.networkAddress = hostURL.text;
+    NetworkManager.singleton.StartClient();
 }
 ```
 
