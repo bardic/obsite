@@ -13,7 +13,7 @@ As you can see, NetworkRoomManager does a lot for us and only asks for a few obj
 
 Example:
 
-![NetworkRoomManagerExt Config](/static/mirror-character-creator/NetworkRoomManagerExt_Example.png)
+![NetworkRoomManagerExt Config](static/mirror-character-creator/NetworkRoomManagerExt_Example.png)
 
 Let's break these requirements down
 
@@ -24,10 +24,10 @@ Let's break these requirements down
 - Transport
   - This is the most straightforward. Make a choice on your protocal and set it.
 - Player Prefab
-  - ![Whacker_Controller_VO](/static/mirror-character-creator/Whacker_Controller_VO.png)
+  - ![Whacker_Controller_VO](static/mirror-character-creator/Whacker_Controller_VO.png)
   - Note WhackerController and PlayerSyncVO - These are NetworkBehaviour and are capiable of syncing across the server
 - Room Player Prefab
-  - ![Whacker_Controller_VO](/static/mirror-character-creator/RoomPlayerPrefab.png)
+  - ![Whacker_Controller_VO](static/mirror-character-creator/RoomPlayerPrefab.png)
   - This can be an empty prefab as long as it has attached your classes extending NetworkRoomPlayer.
   - Is used to set/sync data before all players are ready. We will use this to set the selected character details.
 - Room Scene
