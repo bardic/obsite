@@ -181,20 +181,12 @@ ul.pagination li.page-item.disabled {
         max-width: 800px;
         width: 90%
     }
-
-    img {
-        width: 100%
-    }
 }
 
 @media only screen and (max-width: 768px) {
     body {
         max-width: 90%;
         font-size: 14px
-    }
-
-    img {
-        max-width: 100%
     }
 
     .neighbor {
@@ -210,10 +202,6 @@ ul.pagination li.page-item.disabled {
     body {
         max-width: 90%;
         font-size: 14px
-    }
-
-    img {
-        max-width: 100%
     }
 
     .neighbor {
