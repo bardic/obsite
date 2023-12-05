@@ -82,7 +82,7 @@ In your `gitlab-cy.yml` file, since we're using DinD we need to pass into the se
 
 Also, note the login. `--password-stdin` with buildkit disabled seems to fail to log in properly, forcing me to login in such a manner.
 
-```json
+```yaml
 stages:
   - build
   - deploy
