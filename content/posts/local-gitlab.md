@@ -1,7 +1,6 @@
 +++
 title = 'Local Gitlab with HTTP Docker repo'
 date = 2023-12-03T22:34:37-04:00
-draft = true
 +++
 
 Soooo, the router I was using to bypass my modem to make my homelab public died. And I really need to learn more about GitLab for a conference presentation I will be doing in early '24. So I thought to myself "I'll just spin up a docker instance of gitlab. It has all the features I need".
